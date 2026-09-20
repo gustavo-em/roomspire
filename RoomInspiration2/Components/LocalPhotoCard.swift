@@ -31,6 +31,6 @@ struct LocalPhotoCard: View {
                 let decoded = await ImageProcessor.decodeForDisplay(photo.imageData)
                 withAnimation(.easeOut(duration: 0.2)) { image = decoded }
             }
-            .accessibilityLabel(photo.note.isEmpty ? (photo.room?.title ?? "Photo") : photo.note)
+            .accessibilityLabel(photo.note.isEmpty ? (photo.room?.title ?? localized("Photo")) : photo.note)
     }
 }

@@ -7,13 +7,13 @@ enum RoomType: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .livingRoom: "Living room"
-        case .kitchen: "Kitchen"
-        case .bedroom: "Bedroom"
-        case .bathroom: "Bathroom"
-        case .homeOffice: "Home office"
-        case .dining: "Dining"
-        case .balcony: "Balcony"
+        case .livingRoom: localized("Living room")
+        case .kitchen: localized("Kitchen")
+        case .bedroom: localized("Bedroom")
+        case .bathroom: localized("Bathroom")
+        case .homeOffice: localized("Home office")
+        case .dining: localized("Dining")
+        case .balcony: localized("Balcony")
         }
     }
 
@@ -48,7 +48,14 @@ enum DecorStyle: String, CaseIterable, Identifiable {
     var id: Self { self }
 
     var title: String {
-        rawValue.capitalized
+        switch self {
+        case .minimalist: localized("Minimalist")
+        case .scandinavian: localized("Scandinavian")
+        case .industrial: localized("Industrial")
+        case .rustic: localized("Rustic")
+        case .boho: localized("Boho")
+        case .modern: localized("Modern")
+        }
     }
 
     var query: String {
@@ -62,7 +69,20 @@ enum PhotoColor: String, CaseIterable, Identifiable {
     var id: Self { self }
 
     var title: String {
-        rawValue.capitalized
+        switch self {
+        case .white: localized("White")
+        case .gray: localized("Gray")
+        case .black: localized("Black")
+        case .brown: localized("Brown")
+        case .red: localized("Red")
+        case .orange: localized("Orange")
+        case .yellow: localized("Yellow")
+        case .green: localized("Green")
+        case .turquoise: localized("Turquoise")
+        case .blue: localized("Blue")
+        case .violet: localized("Violet")
+        case .pink: localized("Pink")
+        }
     }
 
     var swatch: Color {

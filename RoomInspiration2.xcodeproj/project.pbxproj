@@ -110,6 +110,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"pt-BR",
 			);
 			mainGroup = 28107DC1305DCBB3007448E3;
 			minimizedProjectReferenceProxies = 1;
@@ -157,6 +158,7 @@
 				DEVELOPMENT_TEAM = ZVV2WA9432;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RoomInspiration2/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Roomspire;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -188,6 +190,7 @@
 				DEVELOPMENT_TEAM = ZVV2WA9432;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RoomInspiration2/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Roomspire;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

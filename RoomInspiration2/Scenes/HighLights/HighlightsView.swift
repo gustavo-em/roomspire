@@ -38,7 +38,11 @@ struct HighlightsView: View {
             ProgressView("Loading inspiration…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if viewModel.blocks.isEmpty {
-            ContentUnavailableView.search(text: viewModel.criteria.pexelsQuery)
+            if viewModel.criteria.text.isEmpty {
+                ContentUnavailableView.search
+            } else {
+                ContentUnavailableView.search(text: viewModel.criteria.text)
+            }
         } else {
             photoGrid
         }

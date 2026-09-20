@@ -3,16 +3,24 @@ import SwiftData
 
 struct ProfileView: View {
 
-    enum Section: String, CaseIterable, Identifiable {
-        case mine = "My rooms"
-        case favorites = "Favorites"
+    enum Section: CaseIterable, Identifiable {
+        case mine, favorites
         var id: Self { self }
+
+        var title: LocalizedStringKey {
+            switch self {
+            case .mine: "My rooms"
+            case .favorites: "Favorites"
+            }
+        }
     }
 
     @Query(sort: \UserPhoto.createdAt, order: .reverse) private var photos: [UserPhoto]
     @Query(sort: \FavoritePhoto.savedAt, order: .reverse) private var favorites: [FavoritePhoto]
     @Environment(\.modelContext) private var modelContext
 
+    @AppStorage(AppLanguage.storageKey) private var language = AppLanguage.system.rawValue
+    @AppStorage(AppAppearance.storageKey) private var appearance = AppAppearance.system.rawValue
     @State private var section: Section = .mine
     @State private var showAddPhoto = false
     @State private var selectedPhoto: UserPhoto?
@@ -41,6 +49,22 @@ struct ProfileView: View {
             }
             .navigationTitle("Profile")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Picker("Language", selection: $language) {
+                            ForEach(AppLanguage.allCases) { option in
+                                option.title.tag(option.rawValue)
+                            }
+                        }
+                        Picker("Appearance", selection: $appearance) {
+                            ForEach(AppAppearance.allCases) { option in
+                                Text(option.title).tag(option.rawValue)
+                            }
+                        }
+                    } label: {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button("Add photo", systemImage: "plus") {
                         showAddPhoto = true
@@ -62,7 +86,7 @@ struct ProfileView: View {
     private var sectionPicker: some View {
         Picker("Section", selection: $section) {
             ForEach(Section.allCases) { section in
-                Text(section.rawValue).tag(section)
+                Text(section.title).tag(section)
             }
         }
         .pickerStyle(.segmented)
@@ -73,7 +97,7 @@ struct ProfileView: View {
     private var roomChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                FilterChip(title: "All", isSelected: roomFilter == nil) {
+                FilterChip(title: localized("All"), isSelected: roomFilter == nil) {
                     roomFilter = nil
                 }
                 ForEach(RoomType.allCases) { room in
@@ -148,7 +172,7 @@ struct ProfileView: View {
                                     }
                                 }
                                 .buttonStyle(.plain)
-                                .accessibilityLabel(favorite.alt ?? "Photo by \(favorite.photographer)")
+                                .accessibilityLabel(favorite.alt.map(Text.init) ?? Text("Photo by \(favorite.photographer)"))
                             }
                         }
                     }
