@@ -44,13 +44,24 @@ let slides: [Slide] = [
           ground: ink, headlineColor: cream, showsBrand: false, colorDots: false),
 ]
 
-let canvas = NSSize(width: 1320, height: 2868)
+struct Device {
+    let canvas: NSSize
+    let frameRadius: CGFloat
+}
+
+let devices: [String: Device] = [
+    "iphone-6.5": Device(canvas: NSSize(width: 1284, height: 2778), frameRadius: 0.114),
+    "ipad-13": Device(canvas: NSSize(width: 2064, height: 2752), frameRadius: 0.05),
+]
+
 let args = CommandLine.arguments
-guard args.count == 4 else {
-    print("usage: generate-store-screenshots.swift <raw dir> <logo.png> <out dir>")
+guard args.count == 5, let device = devices[args[1]] else {
+    print("usage: generate-store-screenshots.swift <iphone-6.5|ipad-13> <raw dir> <logo.png> <out dir>")
     exit(1)
 }
-let rawDir = args[1], logoPath = args[2], outDir = args[3]
+let canvas = device.canvas
+let rawDir = args[2], logoPath = args[3], outDir = args[4]
+let unit = canvas.width / 1320
 
 func rect(_ x: CGFloat, _ top: CGFloat, _ w: CGFloat, _ h: CGFloat) -> NSRect {
     NSRect(x: x, y: canvas.height - top - h, width: w, height: h)
@@ -104,19 +115,20 @@ func render(_ slide: Slide, language: String, index: Int) {
     slide.ground.setFill()
     NSRect(origin: .zero, size: canvas).fill()
 
-    var headlineTop: CGFloat = 300
+    var headlineTop: CGFloat = 300 * unit
     if slide.showsBrand, let logo = NSImage(contentsOfFile: logoPath) {
-        logo.draw(in: rect(96, 150, 120, 120), from: .zero, operation: .sourceOver, fraction: 1)
-        draw("Roomspire", in: rect(240, 168, 700, 100), size: 68, weight: .heavy, color: slide.headlineColor)
-        headlineTop = 360
+        logo.draw(in: rect(96 * unit, 150 * unit, 120 * unit, 120 * unit), from: .zero, operation: .sourceOver, fraction: 1)
+        draw("Roomspire", in: rect(240 * unit, 168 * unit, 700 * unit, 100 * unit), size: 68 * unit, weight: .heavy, color: slide.headlineColor)
+        headlineTop = 360 * unit
     }
-    draw(slide.headline[language]!, in: rect(96, headlineTop, 1160, 520), size: 150, weight: .black, color: slide.headlineColor, lineHeight: 160)
+    draw(slide.headline[language]!, in: rect(96 * unit, headlineTop, canvas.width - 160 * unit, 520 * unit), size: 150 * unit, weight: .black, color: slide.headlineColor, lineHeight: 160 * unit)
 
-    let phoneWidth: CGFloat = 1240
+    let phoneWidth: CGFloat = 1240 * unit
     let shotRatio = shot.size.height / shot.size.width
-    let bezel: CGFloat = 26
+    let bezel: CGFloat = 26 * unit
     let phoneHeight = (phoneWidth - bezel * 2) * shotRatio + bezel * 2
-    let phoneFrame = rect(200, 1010, phoneWidth, phoneHeight)
+    let phoneFrame = rect(200 * unit, 1010 * unit, phoneWidth, phoneHeight)
+    let radius = device.frameRadius * canvas.width
 
     NSGraphicsContext.saveGraphicsState()
     let pivot = NSPoint(x: phoneFrame.midX, y: phoneFrame.midY)
@@ -128,59 +140,59 @@ func render(_ slide: Slide, language: String, index: Int) {
 
     let shadow = NSShadow()
     shadow.shadowColor = NSColor.black.withAlphaComponent(0.35)
-    shadow.shadowBlurRadius = 60
-    shadow.shadowOffset = NSSize(width: 0, height: -30)
+    shadow.shadowBlurRadius = 60 * unit
+    shadow.shadowOffset = NSSize(width: 0, height: -30 * unit)
     shadow.set()
     ink.setFill()
-    NSBezierPath(roundedRect: phoneFrame, xRadius: 150, yRadius: 150).fill()
+    NSBezierPath(roundedRect: phoneFrame, xRadius: radius, yRadius: radius).fill()
     NSShadow().set()
 
     let screen = phoneFrame.insetBy(dx: bezel, dy: bezel)
     NSGraphicsContext.saveGraphicsState()
-    NSBezierPath(roundedRect: screen, xRadius: 126, yRadius: 126).addClip()
+    NSBezierPath(roundedRect: screen, xRadius: radius - bezel, yRadius: radius - bezel).addClip()
     shot.draw(in: screen, from: .zero, operation: .sourceOver, fraction: 1)
     NSGraphicsContext.restoreGraphicsState()
     NSGraphicsContext.restoreGraphicsState()
 
-    let card = rect(72, 1560, 840, 220)
+    let card = rect(72 * unit, 1560 * unit, 840 * unit, 220 * unit)
     let cardShadow = NSShadow()
     cardShadow.shadowColor = NSColor.black.withAlphaComponent(0.28)
-    cardShadow.shadowBlurRadius = 50
-    cardShadow.shadowOffset = NSSize(width: 0, height: -20)
+    cardShadow.shadowBlurRadius = 50 * unit
+    cardShadow.shadowOffset = NSSize(width: 0, height: -20 * unit)
     cardShadow.set()
     NSColor.white.setFill()
-    NSBezierPath(roundedRect: card, xRadius: 44, yRadius: 44).fill()
+    NSBezierPath(roundedRect: card, xRadius: 44 * unit, yRadius: 44 * unit).fill()
     NSShadow().set()
 
-    var textLeft = card.minX + 48
+    var textLeft = card.minX + 48 * unit
     if slide.colorDots {
         let dots: [NSColor] = [.white, .systemGray, .black, .systemBrown, .systemRed, .systemOrange, .systemGreen, .systemBlue]
         for (i, color) in dots.enumerated() {
-            let dot = NSRect(x: card.minX + 48 + CGFloat(i) * 60, y: card.maxY - 58 - 44, width: 44, height: 44)
+            let dot = NSRect(x: card.minX + (48 + CGFloat(i) * 60) * unit, y: card.maxY - 102 * unit, width: 44 * unit, height: 44 * unit)
             color.setFill()
             NSBezierPath(ovalIn: dot).fill()
             NSColor.black.withAlphaComponent(0.15).setStroke()
             NSBezierPath(ovalIn: dot).stroke()
             if i == dots.count - 1 {
                 terracotta.setStroke()
-                let ring = NSBezierPath(ovalIn: dot.insetBy(dx: -6, dy: -6))
-                ring.lineWidth = 6
+                let ring = NSBezierPath(ovalIn: dot.insetBy(dx: -6 * unit, dy: -6 * unit))
+                ring.lineWidth = 6 * unit
                 ring.stroke()
             }
         }
-        draw(slide.calloutTitle[language]!, in: NSRect(x: card.minX + 48 + 8 * 60 + 24, y: card.maxY - 58 - 50, width: 300, height: 60), size: 40, weight: .bold, color: ink)
-        draw(slide.calloutSubtitle[language]!, in: NSRect(x: card.minX + 48, y: card.minY + 36, width: card.width - 96, height: 60), size: 34, weight: .medium, color: NSColor.black.withAlphaComponent(0.55))
+        draw(slide.calloutTitle[language]!, in: NSRect(x: card.minX + 552 * unit, y: card.maxY - 108 * unit, width: 300 * unit, height: 60 * unit), size: 40 * unit, weight: .bold, color: ink)
+        draw(slide.calloutSubtitle[language]!, in: NSRect(x: card.minX + 48 * unit, y: card.minY + 36 * unit, width: card.width - 96 * unit, height: 60 * unit), size: 34 * unit, weight: .medium, color: NSColor.black.withAlphaComponent(0.55))
     } else {
         let symbolName = slide.raw == "favorites.png" ? "heart.fill" : (slide.raw == "dark.png" ? "globe" : "sofa.fill")
-        if let icon = tinted(symbolName, size: 44, color: terracotta) {
-            let badge = NSRect(x: card.minX + 44, y: card.midY - 44, width: 88, height: 88)
+        if let icon = tinted(symbolName, size: 44 * unit, color: terracotta) {
+            let badge = NSRect(x: card.minX + 44 * unit, y: card.midY - 44 * unit, width: 88 * unit, height: 88 * unit)
             terracotta.withAlphaComponent(0.14).setFill()
             NSBezierPath(ovalIn: badge).fill()
             icon.draw(in: NSRect(x: badge.midX - icon.size.width / 2, y: badge.midY - icon.size.height / 2, width: icon.size.width, height: icon.size.height), from: .zero, operation: .sourceOver, fraction: 1)
-            textLeft = badge.maxX + 32
+            textLeft = badge.maxX + 32 * unit
         }
-        draw(slide.calloutTitle[language]!, in: NSRect(x: textLeft, y: card.midY + 8, width: card.maxX - textLeft - 40, height: 70), size: 44, weight: .bold, color: ink)
-        draw(slide.calloutSubtitle[language]!, in: NSRect(x: textLeft, y: card.midY - 62, width: card.maxX - textLeft - 40, height: 60), size: 32, weight: .medium, color: NSColor.black.withAlphaComponent(0.55))
+        draw(slide.calloutTitle[language]!, in: NSRect(x: textLeft, y: card.midY + 8 * unit, width: card.maxX - textLeft - 40 * unit, height: 70 * unit), size: 44 * unit, weight: .bold, color: ink)
+        draw(slide.calloutSubtitle[language]!, in: NSRect(x: textLeft, y: card.midY - 62 * unit, width: card.maxX - textLeft - 40 * unit, height: 60 * unit), size: 32 * unit, weight: .medium, color: NSColor.black.withAlphaComponent(0.55))
     }
 
     NSGraphicsContext.restoreGraphicsState()
